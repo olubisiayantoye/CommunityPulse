@@ -1,26 +1,26 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencies
 
-# dependencies
-/node_modules
+node_modules/
 
+# Environment variables
 
-# misc
-.DS_Store
-*.pem
+.env
 
-# debug
+# Logs
+
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*
+# OS files
 
+.DS_Store
+Thumbs.db
 
+# Optional: build / cache
 
-
-
-# markdown files (except readme.md)
-*.md
-!readme.md
-!README.md
+dist/
+build/
+.cache/
