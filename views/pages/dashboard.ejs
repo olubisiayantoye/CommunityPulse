@@ -1,0 +1,26 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-2">
+        <h2 class="text-2xl font-bold mb-4">Recent Feedback</h2>
+        <div class="space-y-4">
+            <% feedbacks.forEach(fb => { %>
+                <div class="bg-white p-4 rounded shadow border-l-4 <%= fb.sentiment_label === 'Positive' ? 'border-green-500' : 'border-red-500' %>">
+                    <div class="flex justify-between">
+                        <span class="text-xs font-bold text-gray-500"><%= fb.category_name %></span>
+                        <span class="text-xs <%= fb.sentiment_label === 'Positive' ? 'text-green-600' : 'text-red-600' %>"><%= fb.sentiment_label %></span>
+                    </div>
+                    <p class="mt-2 text-gray-800"><%= fb.message %></p>
+                    <p class="text-xs text-gray-400 mt-2"><%= new Date(fb.created_at).toLocaleDateString() %></p>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+    <div class="md:col-span-1">
+        <div class="bg-white p-6 rounded shadow">
+            <h3 class="font-bold mb-4">Quick Actions</h3>
+            <a href="/feedback" class="block w-full bg-blue-600 text-white text-center py-2 rounded mb-2">New Feedback</a>
+            <% if (locals.user && user.role === 'admin') { %>
+                <a href="/admin" class="block w-full bg-gray-800 text-white text-center py-2 rounded">Admin Panel</a>
+            <% } %>
+        </div>
+    </div>
+</div>
