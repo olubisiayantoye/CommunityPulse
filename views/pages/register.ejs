@@ -297,9 +297,9 @@ function registerForm() {
             if (/[0-9]/.test(password)) score++;
             //if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-            if (score <= 2) {
+            if (score <= 1) {
                 this.passwordStrength = 'weak';
-            } else if (score <= 4) {
+            } else if (score <= 2) {
                 this.passwordStrength = 'medium';
             } else {
                 this.passwordStrength = 'strong';
@@ -341,7 +341,7 @@ function registerForm() {
                 this.errors.email = 'Please enter a valid email address';
             }
 
-            if (this.password.length < 8) {
+            if (this.password.length < 6) {
                 this.errors.password = 'Password must be at least 8 characters';
             }
 
