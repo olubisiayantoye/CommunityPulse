@@ -162,6 +162,21 @@ app.use('/feedback', require('./routes/feedback'));
 app.use('/admin', require('./routes/admin'));
 app.use('/profile', require('./routes/profile'));
 
+//https://your-app.onrender.com/init-db
+
+// TEMPORARY: Run once to initialize DB, then remove this route
+app.get('/init-db', async (req, res) => {
+    if (process.env.NODE_ENV === 'production') {
+        return res.status(403).send('Disabled in production');
+    }
+    try {
+        const schema = require('fs').readFileSync('./schema.sql', 'utf8');
+        await db.query(schema);
+        res.send('Database initialized!');
+    } catch (err) {
+        res.status(500).send('Error: ' + err.message);
+    }
+});
 
 // Home route
 app.get('/', (req, res) => {
