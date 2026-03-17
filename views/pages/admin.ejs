@@ -1,0 +1,302 @@
+<!-- views/pages/admin.ejs -->
+<div class="space-y-8" x-data="adminDashboard()">
+    
+    <!-- Admin Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+            <p class="text-gray-600 mt-1">Manage community feedback and insights</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex flex-wrap gap-3">
+            <a href="/admin/export?format=csv" 
+               class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Export CSV
+            </a>
+            <a href="/admin/export?format=json" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                Export JSON
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Total Feedback</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-1"><%= typeof stats !== 'undefined' ? stats.total_feedback || 0 : 0 %></p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Positive</p>
+                    <p class="text-3xl font-bold text-green-600 mt-1"><%= typeof stats !== 'undefined' ? stats.positive_count || 0 : 0 %></p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-5 border-l-4 border-red-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Negative</p>
+                    <p class="text-3xl font-bold text-red-600 mt-1"><%= typeof stats !== 'undefined' ? stats.negative_count || 0 : 0 %></p>
+                </div>
+                <div class="bg-red-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-5 border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Pending</p>
+                    <p class="text-3xl font-bold text-yellow-600 mt-1"><%= typeof stats !== 'undefined' ? stats.pending_count || 0 : 0 %></p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Sentiment Pie Chart -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Sentiment Distribution</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg" id="sentiment-chart">
+                <% if (typeof sentiment !== 'undefined' && sentiment.length > 0) { %>
+                    <!-- Simple text-based chart for EJS (replace with Recharts/Chart.js in production) -->
+                    <div class="w-full space-y-3">
+                        <% sentiment.forEach(item => { 
+                            const percent = stats && stats.total_feedback ? Math.round((item.count / stats.total_feedback) * 100) : 0;
+                            const color = item.sentiment_label === 'Positive' ? 'bg-green-500' : item.sentiment_label === 'Negative' ? 'bg-red-500' : 'bg-yellow-500';
+                        %>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span><%= item.sentiment_label %></span>
+                                    <span><%= percent %>%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="<%= color %> h-2 rounded-full" style="width: <%= percent %>%"></div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <p class="text-gray-500">No data available</p>
+                <% } %>
+            </div>
+        </div>
+        
+        <!-- Category Bar Chart -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Feedback by Category</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg" id="category-chart">
+                <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                    <div class="w-full space-y-2">
+                        <% categories.slice(0, 5).forEach(cat => { 
+                            const max = Math.max(...categories.map(c => c.count));
+                            const width = max > 0 ? Math.round((cat.count / max) * 100) : 0;
+                        %>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm text-gray-700 w-24 truncate"><%= cat.name %></span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-4">
+                                    <div class="h-4 rounded-full" style="width: <%= width %>%; background: <%= cat.color %>"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-800 w-8 text-right"><%= cat.count %></span>
+                            </div>
+                        <% }) %>
+                        <% if (categories.length > 5) { %>
+                            <p class="text-xs text-gray-500 mt-2">+ <%= categories.length - 5 %> more categories</p>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <p class="text-gray-500">No data available</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs: Pending Issues / Recent Activity -->
+    <div class="bg-white rounded-xl shadow" x-data="{ activeTab: 'pending' }">
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                <button @click="activeTab = 'pending'" 
+                        :class="activeTab === 'pending' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    Pending Issues
+                </button>
+                <button @click="activeTab = 'recent'" 
+                        :class="activeTab === 'recent' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Recent Activity
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-6">
+            <!-- Pending Issues Tab -->
+            <div x-show="activeTab === 'pending'">
+                <% if (typeof pendingIssues !== 'undefined' && pendingIssues.length > 0) { %>
+                    <div class="space-y-4">
+                        <% pendingIssues.forEach(issue => { %>
+                            <div class="border border-red-200 bg-red-50 rounded-lg p-4" id="issue-<%= issue.id %>">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                                            <% if (issue.category_name) { %>
+                                                <span class="text-xs font-medium px-2 py-1 rounded" style="background: <%= issue.category_color %>20; color: <%= issue.category_color %>">
+                                                    <%= issue.category_name %>
+                                                </span>
+                                            <% } %>
+                                            <span class="text-xs font-medium px-2 py-1 rounded bg-red-100 text-red-800">
+                                                <%= issue.sentiment_label %>
+                                            </span>
+                                            <span class="text-xs text-gray-500">
+                                                <%= new Date(issue.created_at).toLocaleDateString() %>
+                                            </span>
+                                        </div>
+                                        <p class="text-gray-800"><%= issue.message %></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Status Update Form (HTMX) -->
+                                <form hx-put="/admin/feedback/<%= issue.id %>/status" 
+                                      hx-target="#issue-<%= issue.id %>" 
+                                      hx-swap="outerHTML"
+                                      class="mt-4 flex flex-wrap items-center gap-3">
+                                    <select name="status" class="text-sm border-gray-300 rounded focus:ring-blue-500">
+                                        <option value="pending" <%= issue.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                        <option value="in_progress" <%= issue.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+                                        <option value="resolved" <%= issue.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                                        <option value="dismissed" <%= issue.status === 'dismissed' ? 'selected' : '' %>>Dismissed</option>
+                                    </select>
+                                    <button type="submit" class="text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition">
+                                        Update
+                                    </button>
+                                    <button type="button" 
+                                            hx-delete="/admin/feedback/<%= issue.id %>"
+                                            hx-target="#issue-<%= issue.id %>"
+                                            hx-swap="outerHTML"
+                                            hx-confirm="Dismiss this feedback?"
+                                            class="text-sm text-red-600 hover:text-red-800 underline">
+                                        Dismiss
+                                    </button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 text-green-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-green-700 font-medium">🎉 No pending issues!</p>
+                        <p class="text-gray-500 text-sm mt-1">All community feedback has been addressed.</p>
+                    </div>
+                <% } %>
+            </div>
+            
+            <!-- Recent Activity Tab -->
+            <div x-show="activeTab === 'recent'" x-cloak>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-gray-500 border-b">
+                                <th class="pb-3 font-medium">Message</th>
+                                <th class="pb-3 font-medium">Sentiment</th>
+                                <th class="pb-3 font-medium">Author</th>
+                                <th class="pb-3 font-medium">Date</th>
+                                <th class="pb-3 font-medium">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <% if (typeof recentActivity !== 'undefined' && recentActivity.length > 0) { %>
+                                <% recentActivity.forEach(item => { %>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-3 pr-4">
+                                            <p class="text-gray-800 truncate max-w-xs"><%= item.message %></p>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="text-xs px-2 py-1 rounded
+                                                <%= item.sentiment_label === 'Positive' ? 'bg-green-100 text-green-800' : 
+                                                    item.sentiment_label === 'Negative' ? 'bg-red-100 text-red-800' : 
+                                                    'bg-yellow-100 text-yellow-800' %>">
+                                                <%= item.sentiment_label %>
+                                            </span>
+                                        </td>
+                                        <td class="py-3 text-gray-600"><%= item.author %></td>
+                                        <td class="py-3 text-gray-500"><%= new Date(item.created_at).toLocaleDateString() %></td>
+                                        <td class="py-3">
+                                            <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700">
+                                                <%= item.status %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-gray-500">No recent activity</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function adminDashboard() {
+    return {
+        // State for dynamic features
+        loading: false,
+        
+        // Example: Refresh analytics data via HTMX
+        async refreshAnalytics(period = '7d') {
+            this.loading = true;
+            try {
+                const response = await fetch(`/admin/analytics?period=${period}`);
+                const data = await response.json();
+                // Update charts here (integrate with Chart.js/Recharts)
+                console.log('Analytics refreshed:', data);
+            } catch (err) {
+                console.error('Failed to refresh analytics:', err);
+            } finally {
+                this.loading = false;
+            }
+        }
+    }
+}
+</script>

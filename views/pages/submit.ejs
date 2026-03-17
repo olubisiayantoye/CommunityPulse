@@ -1,28 +1,141 @@
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Submit Feedback</h2>
+<!-- views/pages/submit.ejs -->
+<div class="max-w-2xl mx-auto" x-data="feedbackForm()">
     
-    <div id="feedback-form">
-        <form hx-post="/feedback" hx-target="#feedback-form" hx-swap="outerHTML">
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Category</label>
-                <select name="category_id" class="w-full border rounded py-2 px-3">
-                    <% categories.forEach(cat => { %>
-                        <option value="<%= cat.id %>"><%= cat.name %></option>
-                    <% }) %>
+    <div class="bg-white rounded-2xl shadow-xl p-8 animate-slide-up">
+        
+        <!-- Form Header -->
+        <div class="text-center mb-8">
+            <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800">Submit Feedback</h1>
+            <p class="text-gray-600 mt-2">Your voice matters. Share anonymously.</p>
+        </div>
+
+        <!-- Feedback Form -->
+        <form hx-post="/feedback" 
+              hx-target="#form-response" 
+              hx-swap="innerHTML"
+              hx-indicator="#submit-btn"
+              class="space-y-6"
+              @submit.prevent="validateAndSubmit()">
+
+            <!-- Category Selection -->
+            <div>
+                <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                    Category <span class="text-gray-400">(optional)</span>
+                </label>
+                <select id="category" name="category_id" x-model="category"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                    <option value="">Select a category...</option>
+                    <% if (typeof categories !== 'undefined') { %>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat.id %>" style="border-left: 4px solid <%= cat.color %>">
+                                <%= cat.name %>
+                            </option>
+                        <% }) %>
+                    <% } %>
                 </select>
             </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Message</label>
-                <textarea name="message" rows="5" class="w-full border rounded py-2 px-3" required></textarea>
+
+            <!-- Message Textarea -->
+            <div>
+                <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
+                    Your Message <span class="text-red-500">*</span>
+                </label>
+                <textarea id="message" name="message" x-model="message" @input="checkLength()"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition h-40 resize-none"
+                          placeholder="Share your thoughts, concerns, or suggestions..."
+                          required minlength="10" maxlength="2000"></textarea>
+                
+                <!-- Character Counter -->
+                <div class="flex justify-between items-center mt-1">
+                    <p class="text-xs text-gray-500">Minimum 10 characters</p>
+                    <p class="text-xs" :class="charCount > 1800 ? 'text-red-500' : 'text-gray-500'">
+                        <span x-text="charCount"></span>/2000
+                    </p>
+                </div>
+                <p x-show="tooShort" class="text-xs text-red-500 mt-1">Message is too short</p>
             </div>
-            <div class="mb-6 flex items-center">
-                <input type="checkbox" name="is_anonymous" checked class="mr-2">
-                <label class="text-gray-700">Submit Anonymously</label>
+
+            <!-- Anonymous Toggle -->
+            <div class="flex items-center">
+                <input type="checkbox" id="anonymous" name="is_anonymous" x-model="isAnonymous"
+                       class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300">
+                <label for="anonymous" class="ml-2 text-sm text-gray-700">
+                    Submit anonymously <span class="text-gray-400">(recommended)</span>
+                </label>
             </div>
-            <button class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition">
-                Submit
-                <span class="htmx-indicator ml-2">⏳</span>
+
+            <!-- Response Area (HTMX target) -->
+            <div id="form-response"></div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submit-btn"
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                    :disabled="!canSubmit">
+                <span x-show="!isSubmitting">Submit Feedback</span>
+                <span x-show="isSubmitting" class="flex items-center space-x-2">
+                    <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Analyzing sentiment...</span>
+                </span>
             </button>
+
         </form>
+
+        <!-- Privacy Notice -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-xs text-gray-500 text-center">
+                🔒 Your feedback is encrypted. AI analyzes sentiment only—no personal data is stored unless you choose to identify yourself.
+            </p>
+        </div>
+
     </div>
+
 </div>
+
+<script>
+function feedbackForm() {
+    return {
+        message: '',
+        category: '',
+        isAnonymous: true,
+        charCount: 0,
+        tooShort: false,
+        isSubmitting: false,
+        
+        checkLength() {
+            this.charCount = this.message.length;
+            this.tooShort = this.charCount > 0 && this.charCount < 10;
+        },
+        
+        get canSubmit() {
+            return this.message.length >= 10 && 
+                   this.message.length <= 2000 && 
+                   !this.isSubmitting;
+        },
+        
+        async validateAndSubmit() {
+            if (!this.canSubmit) return;
+            
+            this.isSubmitting = true;
+            
+            try {
+                // Let HTMX handle the actual submission
+                // This just ensures validation passes first
+                const form = this.$el.querySelector('form');
+                if (form.checkValidity()) {
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            } finally {
+                // isSubmitting will be reset by HTMX response
+            }
+        }
+    }
+}
+</script>

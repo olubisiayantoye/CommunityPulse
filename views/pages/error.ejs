@@ -1,0 +1,126 @@
+<!-- views/pages/error.ejs -->
+<div class="min-h-[60vh] flex items-center justify-center py-12 px-4" x-data="errorPage()">
+    
+    <div class="max-w-lg w-full text-center animate-slide-up">
+        
+        <!-- Error Icon Based on Status Code -->
+        <div class="mb-6">
+            <% 
+                const statusCode = typeof status !== 'undefined' ? status : 500;
+                const iconMap = {
+                    404: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                    403: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>',
+                    400: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                    500: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>'
+                };
+                const colorMap = {
+                    404: 'text-blue-500 bg-blue-100',
+                    403: 'text-yellow-500 bg-yellow-100',
+                    400: 'text-orange-500 bg-orange-100',
+                    500: 'text-red-500 bg-red-100'
+                };
+                const titleMap = {
+                    404: 'Page Not Found',
+                    403: 'Access Denied',
+                    400: 'Bad Request',
+                    500: 'Server Error'
+                };
+                const messageMap = {
+                    404: 'The page you\'re looking for doesn\'t exist or has been moved.',
+                    403: 'You don\'t have permission to access this resource.',
+                    400: 'Your request could not be processed. Please check your input.',
+                    500: 'Something went wrong on our end. We\'re working to fix it.'
+                };
+            %>
+            
+            <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center <%= colorMap[statusCode] || colorMap[500] %>">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <%- iconMap[statusCode] || iconMap[500] %>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Error Title & Message -->
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            <%= statusCode %>
+        </h1>
+        <h2 class="text-xl font-semibold text-gray-700 mb-3">
+            <%= typeof pageTitle !== 'undefined' ? pageTitle : titleMap[statusCode] || titleMap[500] %>
+        </h2>
+        <p class="text-gray-600 mb-8">
+            <%= typeof message !== 'undefined' ? message : messageMap[statusCode] || messageMap[500] %>
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="/" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition w-full sm:w-auto justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                Go Home
+            </a>
+            
+            <button @click="goBack()" 
+                    class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition w-full sm:w-auto justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Go Back
+            </button>
+            
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/dashboard" 
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition w-full sm:w-auto justify-center">
+                    Dashboard
+                </a>
+            <% } %>
+        </div>
+
+        <!-- Technical Details (Development Only) -->
+        <% if (typeof error !== 'undefined' && error && process.env.NODE_ENV !== 'production') { %>
+            <div class="mt-8 text-left" x-data="{ showDetails: false }">
+                <button @click="showDetails = !showDetails" 
+                        class="text-sm text-gray-500 hover:text-gray-700 underline flex items-center">
+                    <span>Technical Details (Dev Only)</span>
+                    <svg class="w-4 h-4 ml-1" :class="showDetails ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                
+                <div x-show="showDetails" x-transition class="mt-4 p-4 bg-gray-100 rounded-lg text-xs text-gray-600 overflow-auto max-h-64">
+                    <p class="font-mono"><strong>Error:</strong> <%= error.message %></p>
+                    <% if (typeof stack !== 'undefined' && stack) { %>
+                        <pre class="mt-2 whitespace-pre-wrap"><%= stack %></pre>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Support Contact -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500">
+                Need help? 
+                <a href="mailto:support@communitypulse.org" class="text-blue-600 hover:underline">Contact Support</a>
+                or visit our 
+                <a href="#" class="text-blue-600 hover:underline" @click.prevent>Help Center</a>
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function errorPage() {
+    return {
+        goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        }
+    }
+}
+</script>

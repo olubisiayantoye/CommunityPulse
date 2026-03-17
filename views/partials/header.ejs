@@ -1,47 +1,53 @@
 <!-- views/partials/header.ejs -->
 <% 
-    // Dynamic page title fallback
-    const pageTitle = typeof page !== 'undefined' ? page : 'CommunityPulse';
+    // Safe access to messages (connect-flash stores arrays)
+    const errorMsg = typeof messages !== 'undefined' && messages.error ? (Array.isArray(messages.error) ? messages.error[0] : messages.error) : null;
+    const successMsg = typeof messages !== 'undefined' && messages.success ? (Array.isArray(messages.success) ? messages.success[0] : messages.success) : null;
+    const warningMsg = typeof messages !== 'undefined' && messages.warning ? (Array.isArray(messages.warning) ? messages.warning[0] : messages.warning) : null;
+    const infoMsg = typeof messages !== 'undefined' && messages.info ? (Array.isArray(messages.info) ? messages.info[0] : messages.info) : null;
 %>
 
-<!-- Page Header Section -->
 <header class="mb-8" x-data="{ showFlash: true }">
     
     <!-- Page Title & Description -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800"><%= pageTitle %></h1>
-            <% if (typeof pageDescription !== 'undefined') { %>
-                <p class="text-gray-600 mt-1"><%= pageDescription %></p>
+            <% if (typeof page !== 'undefined' && page) { %>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800"><%= page %></h1>
+            <% } %>
+            <% if (typeof description !== 'undefined' && description) { %>
+                <p class="text-gray-600 mt-1"><%= description %></p>
             <% } %>
         </div>
         
         <!-- Optional Action Button (passed from parent view) -->
-        <% if (typeof headerAction !== 'undefined') { %>
-            <div class="mt-4 md:mt-0">
-                <%- headerAction %>
+        <% if (typeof actionButton !== 'undefined' && actionButton) { %>
+            <div class="mt-3 md:mt-0">
+                <%- actionButton %>
             </div>
         <% } %>
     </div>
 
-    <!-- Flash Messages Container -->
-    <% if (showFlash) { %>
-        <div x-show="showFlash" x-transition.opacity class="space-y-3 mb-6">
+    <!-- Flash Messages (Auto-dismiss with Alpine.js) -->
+    <% if (showFlash && (errorMsg || successMsg || warningMsg || infoMsg)) { %>
+        <div class="space-y-2 mb-4" x-show="showFlash" x-transition.opacity>
             
-            <!-- Success Message -->
-            <% if (locals.messages && locals.messages.success) { %>
-                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between" 
+            <!-- Error Message -->
+            <% if (errorMsg) { %>
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between" 
                      role="alert"
                      x-data="{ visible: true }"
                      x-show="visible"
                      x-transition>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-green-800 font-medium"><%= messages.success %></span>
+                        <span class="text-red-800"><%= errorMsg %></span>
                     </div>
-                    <button @click="visible = false; showFlash = false" class="text-green-500 hover:text-green-700 ml-4">
+                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                            class="text-red-500 hover:text-red-700 ml-4 focus:outline-none"
+                            aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -49,20 +55,22 @@
                 </div>
             <% } %>
 
-            <!-- Error Message -->
-            <% if (locals.messages && locals.messages.error) { %>
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between" 
+            <!-- Success Message -->
+            <% if (successMsg) { %>
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between" 
                      role="alert"
                      x-data="{ visible: true }"
                      x-show="visible"
                      x-transition>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-red-800 font-medium"><%= messages.error %></span>
+                        <span class="text-green-800"><%= successMsg %></span>
                     </div>
-                    <button @click="visible = false; showFlash = false" class="text-red-500 hover:text-red-700 ml-4">
+                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                            class="text-green-500 hover:text-green-700 ml-4 focus:outline-none"
+                            aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -71,19 +79,21 @@
             <% } %>
 
             <!-- Warning Message -->
-            <% if (locals.messages && locals.messages.warning) { %>
+            <% if (warningMsg) { %>
                 <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between" 
                      role="alert"
                      x-data="{ visible: true }"
                      x-show="visible"
                      x-transition>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-yellow-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-yellow-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                         </svg>
-                        <span class="text-yellow-800 font-medium"><%= messages.warning %></span>
+                        <span class="text-yellow-800"><%= warningMsg %></span>
                     </div>
-                    <button @click="visible = false; showFlash = false" class="text-yellow-500 hover:text-yellow-700 ml-4">
+                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                            class="text-yellow-500 hover:text-yellow-700 ml-4 focus:outline-none"
+                            aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -92,19 +102,21 @@
             <% } %>
 
             <!-- Info Message -->
-            <% if (locals.messages && locals.messages.info) { %>
+            <% if (infoMsg) { %>
                 <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between" 
                      role="alert"
                      x-data="{ visible: true }"
                      x-show="visible"
                      x-transition>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-blue-800 font-medium"><%= messages.info %></span>
+                        <span class="text-blue-800"><%= infoMsg %></span>
                     </div>
-                    <button @click="visible = false; showFlash = false" class="text-blue-500 hover:text-blue-700 ml-4">
+                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                            class="text-blue-500 hover:text-blue-700 ml-4 focus:outline-none"
+                            aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -116,15 +128,15 @@
     <% } %>
 
     <!-- Breadcrumb Navigation (Optional) -->
-    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length > 0) { %>
-        <nav class="text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-            <ol class="flex items-center space-x-2 flex-wrap">
+    <% if (typeof breadcrumbs !== 'undefined' && Array.isArray(breadcrumbs) && breadcrumbs.length > 0) { %>
+        <nav class="text-sm text-gray-500 mb-2" aria-label="Breadcrumb">
+            <ol class="flex items-center flex-wrap gap-1">
                 <li>
                     <a href="/" class="hover:text-blue-600 transition">Home</a>
                 </li>
                 <% breadcrumbs.forEach((crumb, index) => { %>
                     <li class="flex items-center">
-                        <svg class="w-4 h-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3 mx-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                         <% if (crumb.url && index < breadcrumbs.length - 1) { %>
@@ -143,19 +155,16 @@
 
 </header>
 
-<!-- Auto-hide flash messages after 5 seconds -->
+<!-- Auto-hide flash messages after 5 seconds (if not manually dismissed) -->
 <script>
     document.addEventListener('alpine:init', () => {
         setTimeout(() => {
-            if (window.Alpine) {
-                window.Alpine.store('flash', { hide: () => {} });
-                // Trigger Alpine reactivity to hide messages
-                document.querySelectorAll('[x-data]').forEach(el => {
-                    const data = el.__x?.getUnobservedData();
-                    if (data && data.visible !== undefined) {
-                        data.visible = false;
-                    }
-                });
+            const header = document.currentScript?.closest('header');
+            if (header && window.Alpine) {
+                const data = header.__x?.getUnobservedData?.();
+                if (data && data.showFlash !== undefined) {
+                    data.showFlash = false;
+                }
             }
         }, 5000);
     });
