@@ -48,6 +48,22 @@
     
     <!-- Page-specific styles (injected from routes) -->
     <%- typeof pageStyles !== 'undefined' ? pageStyles : '' %>
+    
+
+ <!-- ... other tags ... -->
+    
+    <% if (process.env.NODE_ENV === 'production') { %>
+        <link rel="stylesheet" href="/css/output.css">
+    <% } else { %>
+        <!-- Dev: Use CDN for faster iteration -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = { corePlugins: { preflight: false } };
+        </script>
+    <% } %>
+    
+    <!-- ... rest of head ... -->
+
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
     
