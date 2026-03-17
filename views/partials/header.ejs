@@ -5,6 +5,9 @@
     const successMsg = typeof messages !== 'undefined' && messages.success ? (Array.isArray(messages.success) ? messages.success[0] : messages.success) : null;
     const warningMsg = typeof messages !== 'undefined' && messages.warning ? (Array.isArray(messages.warning) ? messages.warning[0] : messages.warning) : null;
     const infoMsg = typeof messages !== 'undefined' && messages.info ? (Array.isArray(messages.info) ? messages.info[0] : messages.info) : null;
+    
+    // Check if ANY flash message exists (server-side)
+    const hasFlashMessage = errorMsg || successMsg || warningMsg || infoMsg;
 %>
 
 <header class="mb-8" x-data="{ showFlash: true }">
@@ -28,8 +31,8 @@
         <% } %>
     </div>
 
-    <!-- Flash Messages (Auto-dismiss with Alpine.js) -->
-    <% if (showFlash && (errorMsg || successMsg || warningMsg || infoMsg)) { %>
+    <!-- Flash Messages Container (only render if messages exist) -->
+    <% if (hasFlashMessage) { %>
         <div class="space-y-2 mb-4" x-show="showFlash" x-transition.opacity>
             
             <!-- Error Message -->
@@ -45,7 +48,7 @@
                         </svg>
                         <span class="text-red-800"><%= errorMsg %></span>
                     </div>
-                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                    <button @click="visible = false; $nextTick(() => { if (!document.querySelector('[role=\"alert\"]:not([style*=\"display: none\"])')) showFlash = false; })" 
                             class="text-red-500 hover:text-red-700 ml-4 focus:outline-none"
                             aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +71,7 @@
                         </svg>
                         <span class="text-green-800"><%= successMsg %></span>
                     </div>
-                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                    <button @click="visible = false; $nextTick(() => { if (!document.querySelector('[role=\"alert\"]:not([style*=\"display: none\"])')) showFlash = false; })" 
                             class="text-green-500 hover:text-green-700 ml-4 focus:outline-none"
                             aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +94,7 @@
                         </svg>
                         <span class="text-yellow-800"><%= warningMsg %></span>
                     </div>
-                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                    <button @click="visible = false; $nextTick(() => { if (!document.querySelector('[role=\"alert\"]:not([style*=\"display: none\"])')) showFlash = false; })" 
                             class="text-yellow-500 hover:text-yellow-700 ml-4 focus:outline-none"
                             aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +117,7 @@
                         </svg>
                         <span class="text-blue-800"><%= infoMsg %></span>
                     </div>
-                    <button @click="visible = false; setTimeout(() => showFlash = false, 200)" 
+                    <button @click="visible = false; $nextTick(() => { if (!document.querySelector('[role=\"alert\"]:not([style*=\"display: none\"])')) showFlash = false; })" 
                             class="text-blue-500 hover:text-blue-700 ml-4 focus:outline-none"
                             aria-label="Dismiss">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
