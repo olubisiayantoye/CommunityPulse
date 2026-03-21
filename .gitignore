@@ -1,5 +1,137 @@
-node_modules
+# ===== DEPENDENCIES =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ===== ENVIRONMENT VARIABLES (SECURITY) =====
+# NEVER commit secrets or credentials
 .env
-*.log
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# ===== BUILD OUTPUTS =====
+# Frontend (Vite)
+frontend/dist/
+frontend/.vite/
+frontend/tsconfig*.tsbuildinfo
+
+# Backend (Node/Express)
+backend/dist/
+backend/build/
+
+# ===== IDE & EDITOR FILES =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# ===== OS-SPECIFIC FILES =====
+# macOS
 .DS_Store
-public/uploads
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+
+# ===== LOGS & TEMPORARY FILES =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ===== DATABASE & STORAGE =====
+# Local PostgreSQL data (if used)
+*.sqlite
+*.sqlite3
+*.db
+data/
+
+# Uploads/temp files
+uploads/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# ===== TESTING & COVERAGE =====
+coverage/
+.nyc_output/
+*.lcov
+.test-results/
+jest.config.js.serial
+
+# ===== TYPESCRIPT =====
+*.tsbuildinfo
+next-env.d.ts
+
+# ===== PRODUCTION SECRETS (NEVER COMMIT) =====
+# AWS/Cloud credentials
+*.pem
+*.key
+*.crt
+*.p12
+credentials.json
+service-account.json
+
+# Deployment configs with secrets
+render.yaml.local
+vercel.json.local
+
+# ===== OPTIONAL: DOCUMENTATION & ASSETS =====
+# Large media files (if not tracked)
+*.psd
+*.ai
+*.sketch
+*.fig
+*.mp4
+*.mov
+*.gif
+*.png
+*.jpg
+*.jpeg
+!.gitkeep
+
+# ===== MONOREPO SPECIFIC =====
+# Ignore root node_modules, allow subfolder ones
+/node_modules
+!/frontend/node_modules
+!/backend/node_modules
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# ===== COMMUNITYPULSE SPECIFIC =====
+# Local development configs
+*.local.js
+*.local.json
+config.local.js
+
+# Seed data with real credentials
+backend/scripts/seed-real.js
+backend/data/*.json
+
+# User uploads (should not be in git)
+public/uploads/
+frontend/public/uploads/
