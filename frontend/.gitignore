@@ -1,0 +1,27 @@
+# Vite/Rollup outputs
+dist/
+.vite/
+
+# Environment files (already in root, but explicit here)
+.env
+.env.local
+.env.*.local
+
+# Build info
+tsconfig*.tsbuildinfo
+
+# Local development overrides
+*.local.js
+config.local.ts
+
+# Test coverage
+coverage/
+*.lcov
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,36 @@
+# Node outputs
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Database (local development)
+*.sqlite
+*.db
+data/
+
+# Uploads/temp
+uploads/
+temp/
+tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Production secrets (never commit)
+*.pem
+*.key
+credentials.json
